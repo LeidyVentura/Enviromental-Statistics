@@ -1,60 +1,27 @@
----
-title: "Documentacion sobre la generacion de estadisticas ambientales"
-author: "Rene Guzman Reyes"
-date: "Ultima edicion `r format(Sys.time(), '%d, %B, %Y')`"
-output:
-  html_document: 
-    toc: yes
-  pdf_document: default
----
-
-
-
-**Población que utiliza fuentes mejoradas de abastecimiento de agua potable**
-
-
-Utilizaremos los paquetes survey para el analisis de encuestas y el conjunto de paquetes
-Tidyverse para el manejo de los datos. 
-
-```{r error=FALSE, message=FALSE}
+## ----error=FALSE, message=FALSE---------------------------------------------------------------------
 library(survey)
 library(tidyverse)
 
-```
 
 
-Descargamos la base de datos "Hogares" de la ENHOGAR, en el siguiente enlace:
-https://www.one.gob.do/recursos-automatizados/bases-de-datos
-
-```{r}
+## ---------------------------------------------------------------------------------------------------
 enhogar18 <- read.csv("Hogares_ENH18.csv") # Cargamos la base de datos
 
-```
 
 
-Acontinuacion seleccinamos y renombramos las variables a utilizar.
-
-```{r}
+## ---------------------------------------------------------------------------------------------------
 BD <- enhogar18 %>%
   select(Region, HPROVI, HZONA, H109, Factor_expansion) %>% 
     rename(provincia   = HPROVI,
            zona        = HZONA,
            fuente_agua = H109)
-```
 
 
-Omitimos los valores perdidos.
-
-```{r}
+## ---------------------------------------------------------------------------------------------------
 BD <- na.omit(BD)
-```
 
 
-
-Recodificamos los valores de acuerdo con el diccionario de la encuesta. 
-ver:https://www.one.gob.do/catalogo-datos/datasets/ENHOGAR/ENHOGAR-2018-Base-SPSS-PUB/Hogares_ENH2018.htm
-
-```{r}
+## ---------------------------------------------------------------------------------------------------
 
 # Recodificacion de Regiones
 
@@ -130,14 +97,9 @@ BD$fuente_agua <- recode(BD$fuente_agua,
                     `96` = "Otro",
                     `99` = "Sin información",)
 
-```
 
 
-
-Segmentamos entre las fuentes mejoradas, las no mejoradas y otras fuentes.
-Metodologia CEPALSTATS:https://cepalstat-prod.cepal.org/cepalstat/tabulador/SisGen_MuestraFicha_puntual.asp?id_aplicacion=1&id_estudio=1&indicador=97&idioma=e
-
-```{r}
+## ---------------------------------------------------------------------------------------------------
 BD$estado_fuente <- recode(BD$fuente_agua,
                            `Del acueducto dentro de la vivienda` = "Mejorada",
                            `Del acueducto en el patio de la vivienda` = "Mejorada",
@@ -148,12 +110,9 @@ BD$estado_fuente <- recode(BD$fuente_agua,
                            `Lluvia` = "Mejorada",
                            `De camión tanque` = "No Mejorada")
 
-```
-
-A continuacion calculamos la poblacion con acceso a fuentes mejoradas
 
 
-```{r}
+## ---------------------------------------------------------------------------------------------------
 # Especificamos el diseño de la muestra con la funcion svydesign del paquete survey 
 
 ds <- svydesign(data = BD, ids = ~1, weights = BD$Factor_expansion)
@@ -183,10 +142,9 @@ db<- svytable(~zona+estado_fuente, design = ds)%>%
   as.data.frame() 
 
 
-```
-\pagebreak
 
-```{r, fig.align= 'center'}
+
+## ---- fig.align= 'center'---------------------------------------------------------------------------
 
 options(scipen = 999, digits = 2)
 
@@ -218,5 +176,4 @@ db %>%
 # Estimamos la proporción de la población con acceso fuentes de agua mejoradas por zona
 
 knitr::kable(svyby(~estado_fuente=="Mejorada",~zona,design=ds, svyciprop,method="li"))
-```
 
