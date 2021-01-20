@@ -10,7 +10,7 @@ output:
 
 
 
-**Estadística: Población que utiliza fuentes mejoradas de abastecimiento de agua potable**
+**Población que utiliza fuentes mejoradas de abastecimiento de agua potable**
 
 
 Utilizaremos los paquetes survey para el analisis de encuestas y el conjunto de paquetes
@@ -27,7 +27,7 @@ Descargamos la base de datos "Hogares" de la ENHOGAR, en el siguiente enlace:
 https://www.one.gob.do/recursos-automatizados/bases-de-datos
 
 ```{r}
-enhogar18 <- read.csv("Hogares_ENH18.csv") # Cargamos la base de datos
+enhogar18 <- read.csv("Hogares_ENH18 (1).csv") # Cargamos la base de datos
 
 ```
 
